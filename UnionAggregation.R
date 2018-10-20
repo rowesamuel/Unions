@@ -72,3 +72,10 @@ union_industry<-aggregate(cps$earnwt2,by=list(
   naics=cps$dind02),
   FUN=sum
 )
+
+union_state<-aggregate(cps$earnwt2,by=list(
+  year=cps$year,
+  union=cps$union,
+  state=cps$stfips),
+  FUN=sum
+)
