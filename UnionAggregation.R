@@ -55,17 +55,28 @@ cps$earnwt2<-cps$earnwt/(3*4)
 ################
 #Aggregate
 ################
+#Wage and Salary
 wage_salary<-aggregate(cps$cmpwgt2,by=list(
   year=cps$year,
   wage_salary=cps$w_s),
   FUN=sum
 )
+#Wage and Salary by State
+wage_salary_state<-aggregate(cps$cmpwgt2,by=list(
+  year=cps$year,
+  wage_salary=cps$w_s,
+  state=cps$stfips),
+  FUN=sum
+)
+
+#Union
 union<-aggregate(cps$earnwt2,by=list(
   year=cps$year,
   union=cps$union),
   FUN=sum
 )
 
+#Union by Industry
 union_industry<-aggregate(cps$earnwt2,by=list(
   year=cps$year,
   union=cps$union,
@@ -73,9 +84,24 @@ union_industry<-aggregate(cps$earnwt2,by=list(
   FUN=sum
 )
 
+#Union by State
 union_state<-aggregate(cps$earnwt2,by=list(
   year=cps$year,
   union=cps$union,
   state=cps$stfips),
   FUN=sum
 )
+
+###########
+#Merge
+###########
+union_state<-union_state[union_state$union==1,]
+wage_salary_state<-wage_salary_state[wage_salary_state$wage_salary==1,]
+state<-merge(wage_salary_state,union_state,by=c("year","state"))
+colnames(state)[c(4,6)]<-c("wage_salary_ct","union_ct")
+state<-state[,-which(names(state) %in% c("wage_salary","union"))]
+state$density<-round((state$union_ct/state$wage_salary_ct)*100,2)
+state<-state[order(state$state,state$year),]
+###########
+#Graph
+###########
